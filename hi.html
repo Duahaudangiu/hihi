@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Thiệp 20/10 — Phiên bản Cao Cấp</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-dark:#120b18;--bg-deep:#24132a;--gold:#ffd67a;--accent:#b38bff;--muted:rgba(255,255,255,0.85);
+  --success:#6ae29a; --error:#ff7b9c;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:"Inter",system-ui; background:
+  radial-gradient(circle at 10% 20%,rgba(179,139,255,0.07),transparent 10%),
+  radial-gradient(circle at 90% 80%,rgba(255,214,122,0.05),transparent 10%),
+  linear-gradient(180deg,var(--bg-deep),var(--bg-dark));
+  color:var(--muted);
+}
+.card{width:92%;max-width:720px;background:rgba(255,255,255,0.03);border-radius:20px;
+  padding:28px;box-shadow:0 20px 60px rgba(10,6,12,0.6);border:1px solid rgba(255,215,130,0.06);
+  display:grid;grid-template-columns:1fr 340px;gap:20px;position:relative;z-index:10;}
+.left{padding:10px 18px;}
+.logo{
+  font-family:"Playfair Display",serif;
+  font-size:32px;
+  color:var(--gold);
+  text-align:center;
+  margin-bottom:8px;
+  text-shadow:0 0 12px rgba(255,215,130,0.3);
+}
+h1{
+  margin:6px 0 10px;
+  font-family:"Playfair Display",serif;
+  color:var(--gold);
+  font-size:28px;
+  text-align:center;
+}
+.subtitle{color:rgba(255,255,255,0.85);line-height:1.45;font-size:15px;margin-bottom:16px;text-align:center;}
+.panel{background:rgba(255,255,255,0.02);border-radius:14px;padding:18px;text-align:center;}
+input[type="text"]{
+  width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.02);color:var(--muted);font-size:15px;margin-bottom:12px;text-align:center;
+}
+.btn{
+  display:inline-block;padding:10px 20px;border-radius:999px;border:none;
+  background:linear-gradient(90deg,var(--accent),var(--gold));color:#22121a;font-weight:700;cursor:pointer;font-size:15px;
+}
+.btn:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(179,139,255,0.15);}
+.giftMsg{
+  margin-top:14px;min-height:48px;font-weight:600;color:var(--gold);font-size:16px;opacity:0;
+  transition:opacity .4s;
+}
+.giftMsg.show{opacity:1;animation:pop .9s cubic-bezier(.22,.9,.32,1);}
+@keyframes pop{0%{transform:scale(.92);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1)}}
+.credit{position:absolute;bottom:12px;left:18px;font-size:12px;color:rgba(255,255,255,0.35);}
+
+/* overlay (darken) */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:1000;display:none;}
+.overlay.show{display:block;}
+
+/* quiz popup */
+.popup{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);
+  background:rgba(25,15,35,0.96);border-radius:18px;padding:26px 28px;z-index:1100;min-width:360px;
+  border:1px solid rgba(255,215,130,0.35);box-shadow:0 10px 40px rgba(0,0,0,0.6);color:#fff;display:none;
+}
+.popup.show{display:block;animation:popupIn .24s ease;}
+@keyframes popupIn{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.popup h2{font-family:"Playfair Display",serif;color:var(--gold);font-size:20px;text-align:center;margin:0 0 8px;}
+.question{text-align:center;font-size:15px;margin-bottom:12px;color:rgba(255,255,255,0.92);}
+.quiz-options{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+.option{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);cursor:pointer;border:1px solid rgba(255,255,255,0.06);}
+.option:hover{background:rgba(255,255,255,0.08);}
+.option input{appearance:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--gold);position:relative;}
+.option input:checked::after{content:"";position:absolute;inset:3px;background:var(--gold);border-radius:50%;}
+.option span{flex:1;color:#fff;font-size:14px;}
+#otherAnswer{width:100%;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.06);color:#fff;font-size:14px;margin-top:10px;}
+.closeX{position:absolute;right:12px;top:10px;color:rgba(255,255,255,0.7);cursor:pointer;font-size:18px;}
+
+/* message popups (appear on top of everything) */
+.messagePopup{
+  position:fixed;
+  left:50%;
+  top:18%;
+  transform:translateX(-50%) translateY(-10px) scale(.98);
+  min-width:260px;
+  max-width:90vw;
+  padding:14px 18px;
+  border-radius:12px;
+  color:#111;
+  font-weight:700;
+  text-align:center;
+  z-index:2000; /* VERY HIGH so it's above the card */
+  display:none;
+  box-shadow:0 12px 40px rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+}
+.messagePopup.show{display:block;animation:msgIn .22s cubic-bezier(.2,.9,.3,1) forwards;}
+@keyframes msgIn{from{opacity:0;transform:translateX(-50%) translateY(-20px) scale(.96)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+/* success style */
+.msg-success{background:linear-gradient(90deg, rgba(106,226,154,0.12), rgba(106,226,154,0.06));border:1px solid rgba(106,226,154,0.28);color:var(--success);}
+
+/* error style */
+.msg-error{background:linear-gradient(90deg, rgba(255,123,156,0.08), rgba(255,123,156,0.04));border:1px solid rgba(255,123,156,0.22);color:var(--error);}
+
+/* small fade helper */
+.fadeOut{opacity:0;transition:opacity 0.9s ease;}
+</style>
+</head>
+<body>
+
+<!-- overlay for modal -->
+<div id="overlay" class="overlay" aria-hidden="true"></div>
+
+<!-- main card -->
+<div class="card" role="main" aria-labelledby="title">
+  <div class="left">
+    <div class="logo">Chúc cậu 20/10 vui vẻ nè!!!</div>
+    <div class="subtitle">Nhân ngày 20/10, chúc cậu thật nhìu niềm vui, sức khỏe, hạnh phúc bên người mình iu thương <33 </div>
+  </div>
+
+  <div class="panel" aria-label="Form nhận quà">
+    <input id="nameInput" type="text" placeholder="Nhập tên của bạn..." aria-label="Tên người nhận">
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:6px;">
+      <button class="btn" id="btnGift" aria-label="Nhận quà">Nhận quà</button>
+      <button class="btn" id="btnRetry" aria-label="Nhận lại" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--muted)">Nhận lại</button>
+    </div>
+    <div class="giftMsg" id="giftMsg" aria-live="polite"></div>
+  </div>
+
+  <div class="credit">— From duahauus</div>
+</div>
+
+<!-- quiz popup -->
+<div class="popup" id="quizPopup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="closeX" id="closeQuiz" title="Đóng">✕</div>
+  <h2>✨ Trắc nghiệm nhận lại quà ✨</h2>
+  <div class="question">Câu hỏi: <strong>Dưa hấu thích gì?</strong></div>
+  <div class="quiz-options" id="quizOptions">
+    <label class="option"><input type="radio" name="qOpt" value="A"><span>A. Thích Dưa Hấu</span></label>
+    <label class="option"><input type="radio" name="qOpt" value="B"><span>B. Thích Thanh Hà</span></label>
+    <label class="option"><input type="radio" name="qOpt" value="C"><span>C. Thích Huce</span></label>
+    <label class="option"><input type="radio" name="qOpt" value="D"><span>D. Thích Miyu</span></label>
+    <label class="option"><input type="radio" name="qOpt" value="E"><span>E. Đáp án khác</span></label>
+  </div>
+  <div id="otherAnswerWrap" style="display:none;">
+    <input id="otherAnswer" type="text" placeholder="Nhập đáp án khác...">
+  </div>
+  <div style="text-align:right;margin-top:14px;">
+    <button class="btn" id="submitQuiz">Nộp đáp án</button>
+  </div>
+</div>
+
+<!-- floating message popups (appear above everything) -->
+<div id="msgSuccess" class="messagePopup msg-success" role="status" aria-live="polite"></div>
+<div id="msgError" class="messagePopup msg-error" role="status" aria-live="polite"></div>
+
+<audio id="ding" preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2023/03/28/audio_09d3726a7d.mp3?filename=ding-126626.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* CONFIG (replace with your Apps Script if you log) */
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbz6eC6nbVIrae32eYQAiogvdJEsTK0gO4F_hqX8Brguv55mZ2bGtCZz24nBzbCnPrk/exec";
+
+/* ELEMENTS */
+const btnGift = document.getElementById('btnGift');
+const btnRetry = document.getElementById('btnRetry');
+const nameInput = document.getElementById('nameInput');
+const giftMsg = document.getElementById('giftMsg');
+const ding = document.getElementById('ding');
+const quizPopup = document.getElementById('quizPopup');
+const overlay = document.getElementById('overlay');
+const closeQuiz = document.getElementById('closeQuiz');
+const quizOptions = document.getElementById('quizOptions');
+const otherAnswerWrap = document.getElementById('otherAnswerWrap');
+const otherAnswer = document.getElementById('otherAnswer');
+const submitQuiz = document.getElementById('submitQuiz');
+const msgSuccess = document.getElementById('msgSuccess');
+const msgError = document.getElementById('msgError');
+
+let hideTimeout = null;
+
+/* helper: device id + used key */
+function getDeviceId(){
+  const key='__thiep_device_v4';
+  let id = localStorage.getItem(key);
+  if(!id){
+    const raw = navigator.userAgent + '|' + navigator.language + '|' + screen.width + 'x' + screen.height + '|' + window.devicePixelRatio;
+    try { id = btoa(unescape(encodeURIComponent(raw))).substring(0,20); }
+    catch(e){ id = Math.random().toString(36).slice(2,14); }
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
+const deviceId = getDeviceId();
+const usedKey = 'thiep_used_' + deviceId;
+
+/* random gifts */
+function makeRandomGift(){
+  const choices = [
+    "Một lời chúc ngủ ngon lúc 23:59 phút ngày 20/10 🌙",
+    "Khó lói",
+    "Thoii, hẹn năm sau mình chơi lại nhé hehe",
+    "Một lời chúc thật lòng, không giả dối :>",
+    "Một ngày lên làm chủ clan :> đấy là tui nói thế chứ bạn đó không chịu thì cũng phải chịu",
+    `${Math.floor(Math.random()*10)+1} bông hoa 🌷`,
+    `${Math.floor(Math.random()*5)+1} chùm bông 💐`
+  ];
+  return choices[Math.floor(Math.random()*choices.length)];
+}
+
+/* show transient message on top (success or error) */
+function showTopMessage(el, text, ms=2200){
+  el.textContent = text;
+  el.style.display = 'block';
+  el.classList.add('show');
+  setTimeout(()=> {
+    el.classList.remove('show');
+    setTimeout(()=> el.style.display = 'none', 260);
+  }, ms);
+}
+
+/* show "already received" message inline */
+function showAlreadyReceivedInline(name=''){
+  giftMsg.textContent = `Bỏ cái tay ra ${name ? name + ', ' : ''}đã nhận quà rồi mà còn bấm nữa z :> `;
+  giftMsg.classList.add('show');
+  if(hideTimeout) clearTimeout(hideTimeout);
+  hideTimeout = setTimeout(()=>{
+    giftMsg.classList.add('fadeOut');
+    setTimeout(()=>{
+      giftMsg.classList.remove('show','fadeOut');
+      giftMsg.textContent = '';
+    }, 900);
+  }, 5000);
+}
+
+/* click "Nhận quà" */
+btnGift.addEventListener('click', ()=>{
+  const name = (nameInput.value || '').trim();
+
+  // Nếu chưa nhập tên -> chỉ hiện thông báo, không nhận quà
+  if(!name){
+    showTopMessage(msgError, "Tên đâu mà đòi nhận quà z", 2500);
+    nameInput.focus();
+    return;
+  }
+
+  // Nếu đã nhận rồi
+  if(localStorage.getItem(usedKey)){
+    showAlreadyReceivedInline(name);
+    return;
+  }
+
+  // Tạo quà và hiển thị
+  const gift = makeRandomGift();
+  giftMsg.textContent = `💖 ${name}, bạn nhận được: ${gift}`;
+  giftMsg.classList.add('show');
+  ding.currentTime = 0;
+  ding.play().catch(()=>{});
+  localStorage.setItem(usedKey, JSON.stringify({name, gift, ts: Date.now()}));
+
+  // Gửi log (không chặn)
+  try {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, gift, deviceId, answer: ""})
+    });
+  } catch(e){}
+});
+
+/* "Nhận lại" mở quiz */
+btnRetry.addEventListener('click', ()=>{
+  if(!localStorage.getItem(usedKey)){
+    showTopMessage(msgError, "Bạn chưa nhận quà lần đầu — hãy bấm 'Nhận quà' trước nhé.", 2400);
+    return;
+  }
+  overlay.classList.add('show');
+  quizPopup.classList.add('show');
+});
+
+/* đóng quiz */
+closeQuiz.addEventListener('click', ()=>{
+  overlay.classList.remove('show');
+  quizPopup.classList.remove('show');
+  document.querySelectorAll('input[name="qOpt"]').forEach(i => i.checked = false);
+  otherAnswer.value = '';
+  otherAnswerWrap.style.display = 'none';
+});
+
+/* hiện ô nhập nếu chọn E */
+quizOptions.addEventListener('change', ()=>{
+  const v = document.querySelector('input[name="qOpt"]:checked')?.value;
+  otherAnswerWrap.style.display = v === 'E' ? 'block' : 'none';
+});
+
+/* nộp đáp án */
+submitQuiz.addEventListener('click', ()=>{
+  const selected = document.querySelector('input[name="qOpt"]:checked');
+  if(!selected){
+    showTopMessage(msgError, 'Vui lòng chọn đáp án.', 2000);
+    return;
+  }
+  const val = selected.value;
+  const other = (otherAnswer.value || '').trim();
+  if(val === 'E' && other.length === 0){
+    showTopMessage(msgError, 'Nhập đáp án cho E nha!', 2000);
+    return;
+  }
+
+  const name = (nameInput.value || '').trim() || 'Ẩn danh';
+  const answerText = val === 'E' ? other : val;
+
+  try {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, gift: "(Đã có quà)", deviceId, answer: answerText})
+    });
+  } catch(e){}
+
+  const correct = val === 'E' && /^clan$/i.test(other.trim());
+  if(correct){
+    localStorage.removeItem(usedKey);
+    showTopMessage(msgSuccess, "Bingo! Quào quào giỏi quá, không ngờ luôn nha, cho nhận lại quà đó :>", 3000);
+  } else {
+    const msgs = [
+      "Lew lew, clan gaf quá, dễ thế mà cũng sai rồi!",
+      "Hehehe, trật lất",
+      "Không trúng luôn",
+      "Trúng rồi nè, cơ mà là trúng tim tớ mất rùi",
+      "Đoán thêm 10 lần nữa cũng sai thoii",
+      "Đi ngủ đi!",
+      "Khó lắm đâu ta mà làm sai z"
+    ];
+    showTopMessage(msgError, msgs[Math.floor(Math.random()*msgs.length)], 3000);
+  }
+  overlay.classList.remove('show');
+  quizPopup.classList.remove('show');
+  document.querySelectorAll('input[name="qOpt"]').forEach(i => i.checked = false);
+  otherAnswer.value = '';
+  otherAnswerWrap.style.display = 'none';
+});
+
+/* admin reset (Ctrl+R) */
+document.addEventListener('keydown', (e)=>{
+  if(e.ctrlKey && e.key.toLowerCase() === 'r'){
+    localStorage.removeItem(usedKey);
+    showTopMessage(msgSuccess, '🔁 Đã xoá trạng thái test — có thể nhận lại.', 3000);
+    giftMsg.classList.remove('show');
+    giftMsg.textContent = '';
+  }
+});
+</script>
+
+</body>
+</html>
