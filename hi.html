@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Thiệp chúc 20/10 💐</title>
+<style>
+  :root {
+    --pink: #ff9acb;
+    --rose: #f7c6d9;
+    --bg: #fff5f9;
+    --text: #442c2e;
+  }
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 30% 20%, #ffe0ef, transparent 50%), 
+                radial-gradient(circle at 80% 80%, #ffe8f2, transparent 50%), var(--bg);
+    font-family: "Poppins", system-ui, sans-serif;
+    color: var(--text);
+    overflow: hidden;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    text-align: center;
+    padding: 30px 20px;
+    max-width: 350px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s;
+    z-index: 2;
+  }
+  .card:hover { transform: translateY(-5px); }
+  h1 {
+    color: #d63384;
+    font-size: 26px;
+    margin: 0 0 10px;
+  }
+  p {
+    font-size: 15px;
+    color: #5f3c43;
+    margin-bottom: 20px;
+  }
+  button {
+    background: linear-gradient(90deg, var(--pink), var(--rose));
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+  button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 154, 203, 0.6);
+  }
+  .gift {
+    font-size: 22px;
+    margin-top: 18px;
+    font-weight: 600;
+    color: #d63384;
+    min-height: 28px;
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  .show {
+    opacity: 1;
+    animation: pop 0.6s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.8) rotate(-3deg); opacity: 0; }
+    50% { transform: scale(1.05) rotate(3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .flower {
+    position: fixed;
+    top: -50px;
+    font-size: 20px;
+    animation: fall linear forwards;
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+  <audio id="sound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2023/03/28/audio_09d3726a7d.mp3?filename=ding-126626.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="card">
+    <h1>💐 Chúc mừng 20/10 💐</h1>
+    <p>Chúc bạn luôn xinh đẹp, rạng rỡ và hạnh phúc như những đóa hoa!<br>
+    Hãy bấm nút dưới đây để nhận món quà bất ngờ 🎁</p>
+    <button id="btnGift">🎁 Nhận quà</button>
+    <div class="gift" id="giftMsg"></div>
+  </div>
+
+  <script>
+    const gifts = [
+      "🌹 Một chùm bông!",
+      "💄 10 bông!",
+      "👜 Hai chùm bông!",
+      "🍫 5 bông!",
+      "💌 Một lời chúc thật lòng!",
+      "🌻 Một lời chúc siêu dài!",
+      "💍 3 chùm bông!",
+      "☕ 15 bông!",
+      "🍰 Một lời chúc ngủ ngon!",
+    ];
+
+    const btn = document.getElementById("btnGift");
+    const giftMsg = document.getElementById("giftMsg");
+    const sound = document.getElementById("sound");
+
+    btn.addEventListener("click", () => {
+      const randomGift = gifts[Math.floor(Math.random() * gifts.length)];
+      giftMsg.textContent = randomGift;
+      giftMsg.classList.add("show");
+      sound.currentTime = 0;
+      sound.play();
+
+      // tạo hiệu ứng hoa rơi
+      for (let i = 0; i < 8; i++) {
+        createFlower();
+      }
+    });
+
+    function createFlower() {
+      const flower = document.createElement("div");
+      flower.classList.add("flower");
+      flower.textContent = ["🌸","🌷","🌼","🌹","💮"][Math.floor(Math.random()*5)];
+      flower.style.left = Math.random() * 100 + "vw";
+      flower.style.animationDuration = (4 + Math.random() * 3) + "s";
+      flower.style.fontSize = (18 + Math.random() * 12) + "px";
+      document.body.appendChild(flower);
+      setTimeout(() => flower.remove(), 7000);
+    }
+  </script>
+</body>
+</html>
